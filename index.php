@@ -41,5 +41,5 @@
 		file_put_contents($filename, $html, FILE_APPEND | LOCK_EX);
 	}
 	//The file now exists no matter what.
-	header('Location: http://' . $_SERVER['HTTP_HOST'] . '/cssimage/' . $filename);
+	header('Location: http://' . $_SERVER['HTTP_HOST'] . '/cssimages/' . $filename);
 ?>
