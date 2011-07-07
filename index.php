@@ -10,10 +10,8 @@
 		$width = imagesx($image);
 		$height = imagesy($image);
 		$debug = "Image Name: $filename \n Image Width: $width \n Image Height: $height \n";
-		$html .= '<table cellpadding="0" cellspacing="0">' . "\n";
 		//This $html variable stores the HTML so that we can write to a file periodically.
 		//If we don't do this then we are likely to run into memory issues.
-		file_put_contents($filename, $html, FILE_APPEND | LOCK_EX); //We must lock the file
 		$html = '';
 		$prev = '';
 		$hasAlpha = false;
@@ -31,7 +29,7 @@
 		}
 		
 		for($i=0;$i<$height;$i++){
-			$html .= "\t<table cellpadding=\"0\" cellspacing=\"0\"><tr height=\"1\">\n";
+			$html .= "<table cellpadding=\"0\" cellspacing=\"0\">\n\t<tr height=\"1\">\n";
 			$prevColour = '';
 			$prevAlpha = -1;
 			$cellCounter = 0;
@@ -86,7 +84,7 @@
 					$prevColour = $hexcolour;
 				}
 			}
-			$html .= "\t</tr></table>\n";
+			$html .= "\t</tr>\n</table>\n";
 			if($html == $prev) {
 				$counter++;
 				if($i==($height - 1)){
@@ -101,10 +99,8 @@
 			}
 			$html = '';
 		}
-		$html = '</table>';
-		file_put_contents($filename, $html, FILE_APPEND | LOCK_EX);
 	}
-	file_put_contents('debug.log',$debug, FILE_APPEND | LOCK_EX);
+	//file_put_contents('debug.log',$debug, FILE_APPEND | LOCK_EX);
 	//The file now exists no matter what.
 	header('Location: http://' . $_SERVER['HTTP_HOST'] . '/cssimages/' . $filename);
 ?>
