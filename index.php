@@ -12,6 +12,9 @@
 		$html .= '<table cellpadding="0" cellspacing="0">' . "\n";
 		//This $html variable stores the HTML so that we can write to a file periodically.
 		//If we don't do this then we are likely to run into memory issues.
+		file_put_contents($filename, $html, FILE_APPEND | LOCK_EX); //We must lock the file
+		$html = '';
+		$prev = '';
 		for($i=0;$i<$height;$i++){
 			$html .= "\t<tr height=\"1\">\n";
 			for($j=0;$j<$width;$j++){
@@ -30,14 +33,25 @@
 				$html .= "\t\t" . '<td width="1" bgcolor="#' . $r . $g . $b . '" ';
 				$alpha = 127 - $alpha;
 				$alpha = $alpha / 127.0;
-				$html .= 'style="opacity:' . $alpha . ';filter:alpha(opacity=' . $alpha * 100 . '"'; //applies the transparency attributes
+				$html .= 'style="opacity:' . $alpha . ';filter:alpha(opacity=' . $alpha * 100 . ')"'; //applies the transparency attributes
 				$html .= '></td>' . "\n";
 			}
 			$html .= "\t</tr>\n";
-			file_put_contents($filename, $html, FILE_APPEND | LOCK_EX); //We must lock the file
+			if($html == $prev) {
+				$counter++;
+				if($i==($height - 1)){
+					$prev = str_replace('<tr height="1','<tr height="' . ($counter + 1),$prev);
+					file_put_contents($filename, $prev, FILE_APPEND | LOCK_EX);
+				}
+			} else {
+				$prev = str_replace('<tr height="1','<tr height="' . ($counter+1),$prev);
+				file_put_contents($filename, $prev, FILE_APPEND | LOCK_EX);
+				$prev = $html;
+				$counter = 0;
+			}
 			$html = '';
 		}
-		$html .= '</table>';
+		$html = '</table>';
 		file_put_contents($filename, $html, FILE_APPEND | LOCK_EX);
 	}
 	//The file now exists no matter what.
