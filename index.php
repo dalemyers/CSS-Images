@@ -9,6 +9,7 @@
 		$image = imagecreatefrompng($_GET['url']);
 		$width = imagesx($image);
 		$height = imagesy($image);
+		$debug = "Image Name: $filename \n Image Width: $width \n Image Height: $height \n";
 		$html .= '<table cellpadding="0" cellspacing="0">' . "\n";
 		//This $html variable stores the HTML so that we can write to a file periodically.
 		//If we don't do this then we are likely to run into memory issues.
@@ -16,7 +17,10 @@
 		$html = '';
 		$prev = '';
 		for($i=0;$i<$height;$i++){
-			$html .= "\t<tr height=\"1\">\n";
+			$html .= "\t<table cellpadding=\"0\" cellspacing=\"0\"><tr height=\"1\">\n";
+			$prevColour = '';
+			$prevAlpha = -1;
+			$cellCounter = 0;
 			for($j=0;$j<$width;$j++){
 				//The next block gets the RGBA values for the current pixel at location ($j,$i)
 				$rgb = imagecolorat($image, $j, $i);
@@ -30,13 +34,37 @@
 				$r = ((strlen($r) == 1) ? ('0' . $r) : $r);  //Padding with a 0 if it needs it
 				$g = ((strlen($g) == 1) ? ('0' . $g) : $g);
 				$b = ((strlen($b) == 1) ? ('0' . $b) : $b);
-				$html .= "\t\t" . '<td width="1" bgcolor="#' . $r . $g . $b . '" ';
+				$hexcolour = '#' . $r . $g . $b;
 				$alpha = 127 - $alpha;
 				$alpha = $alpha / 127.0;
-				$html .= 'style="opacity:' . $alpha . ';filter:alpha(opacity=' . $alpha * 100 . ')"'; //applies the transparency attributes
-				$html .= '></td>' . "\n";
+				$debug .= "($i,$j) - $hexcolour - $alpha - $cellCounter\n";
+				if($j == 0){
+					$prevAlpha = $alpha;
+					$prevColour = $hexcolour;
+				}
+				$cellHTML = "\t\t" . '<td width="1" bgcolor="#" style="opacity"></td>' . "\n";
+				if(($prevColour == $hexcolour) & ($prevAlpha == $alpha)){
+					$cellCounter++;
+					if($j==($width - 1)){
+						$cellHTML = str_replace('<td width="1','<td width="' . $cellCounter,$cellHTML);
+						$cellHTML = str_replace('bgcolor="#','bgcolor="' . $prevColour,$cellHTML);
+						$cellHTML = str_replace('style="opacity','style="opacity:' . $prevAlpha . ';filter:alpha(opacity=' . $prevAlpha * 100 . ')',$cellHTML);
+						$html .= $cellHTML;
+						$cellCounter = 0;
+						$prevAlpha = $alpha;
+						$prevColour = $hexcolour;
+					}		
+				} else {
+					$cellHTML = str_replace('<td width="1','<td width="' . ($cellCounter),$cellHTML);
+					$cellHTML = str_replace('bgcolor="#','bgcolor="' . $prevColour,$cellHTML);
+					$cellHTML = str_replace('style="opacity','style="opacity:' . $prevAlpha . ';filter:alpha(opacity=' . $prevAlpha * 100 . ')',$cellHTML);
+					$html .= $cellHTML;
+					$cellCounter = 1;
+					$prevAlpha = $alpha;
+					$prevColour = $hexcolour;
+				}
 			}
-			$html .= "\t</tr>\n";
+			$html .= "\t</tr></table>\n";
 			if($html == $prev) {
 				$counter++;
 				if($i==($height - 1)){
@@ -54,6 +82,7 @@
 		$html = '</table>';
 		file_put_contents($filename, $html, FILE_APPEND | LOCK_EX);
 	}
+	file_put_contents('debug.log',$debug, FILE_APPEND | LOCK_EX);
 	//The file now exists no matter what.
 	header('Location: http://' . $_SERVER['HTTP_HOST'] . '/cssimages/' . $filename);
 ?>
