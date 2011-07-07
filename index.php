@@ -16,6 +16,20 @@
 		file_put_contents($filename, $html, FILE_APPEND | LOCK_EX); //We must lock the file
 		$html = '';
 		$prev = '';
+		$hasAlpha = false;
+		for($i=0;$i<$height;$i++){
+			for($j=0;$j<$width;$j++){
+				$rgb = imagecolorat($image, $j, $i);
+				$alpha = ($rgb & 0x7F000000) >> 24;
+				$alpha = 127 - $alpha;
+				$alpha = $alpha / 127.0;
+				if($alpha != 1){
+					$hasAlpha = true;
+					break;
+				}
+			}
+		}
+		
 		for($i=0;$i<$height;$i++){
 			$html .= "\t<table cellpadding=\"0\" cellspacing=\"0\"><tr height=\"1\">\n";
 			$prevColour = '';
@@ -24,7 +38,6 @@
 			for($j=0;$j<$width;$j++){
 				//The next block gets the RGBA values for the current pixel at location ($j,$i)
 				$rgb = imagecolorat($image, $j, $i);
-				$alpha = ($rgb & 0x7F000000) >> 24;
 				$r = ($rgb >> 16) & 0xFF;
 				$g = ($rgb >> 8) & 0xFF;
 				$b = $rgb & 0xFF;
@@ -35,6 +48,7 @@
 				$g = ((strlen($g) == 1) ? ('0' . $g) : $g);
 				$b = ((strlen($b) == 1) ? ('0' . $b) : $b);
 				$hexcolour = '#' . $r . $g . $b;
+				$alpha = ($rgb & 0x7F000000) >> 24;
 				$alpha = 127 - $alpha;
 				$alpha = $alpha / 127.0;
 				$debug .= "($i,$j) - $hexcolour - $alpha - $cellCounter\n";
@@ -48,7 +62,11 @@
 					if($j==($width - 1)){
 						$cellHTML = str_replace('<td width="1','<td width="' . $cellCounter,$cellHTML);
 						$cellHTML = str_replace('bgcolor="#','bgcolor="' . $prevColour,$cellHTML);
-						$cellHTML = str_replace('style="opacity','style="opacity:' . $prevAlpha . ';filter:alpha(opacity=' . $prevAlpha * 100 . ')',$cellHTML);
+						if($hasAlpha){
+							$cellHTML = str_replace('style="opacity','style="opacity:' . $prevAlpha . ';filter:alpha(opacity=' . $prevAlpha * 100 . ')',$cellHTML);
+						} else {
+							$cellHTML = str_replace(' style="opacity"','',$cellHTML);
+						}
 						$html .= $cellHTML;
 						$cellCounter = 0;
 						$prevAlpha = $alpha;
@@ -57,7 +75,11 @@
 				} else {
 					$cellHTML = str_replace('<td width="1','<td width="' . ($cellCounter),$cellHTML);
 					$cellHTML = str_replace('bgcolor="#','bgcolor="' . $prevColour,$cellHTML);
-					$cellHTML = str_replace('style="opacity','style="opacity:' . $prevAlpha . ';filter:alpha(opacity=' . $prevAlpha * 100 . ')',$cellHTML);
+					if($hasAlpha){
+						$cellHTML = str_replace('style="opacity','style="opacity:' . $prevAlpha . ';filter:alpha(opacity=' . $prevAlpha * 100 . ')',$cellHTML);
+					} else {
+						$cellHTML = str_replace(' style="opacity"','',$cellHTML);
+					}
 					$html .= $cellHTML;
 					$cellCounter = 1;
 					$prevAlpha = $alpha;
