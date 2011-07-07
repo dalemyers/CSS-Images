@@ -1,6 +1,7 @@
 <?php
 	//If the file has been previously generated before then we don't bother regenerating.
 	//We check by md5-ing the file and checking to see if a file with that name exists.
+	$DEBUG = true;
 	$extension = '.png';
 	$md5 = md5_file($_GET['url']);
 	$filename = $md5.'.html';
@@ -9,7 +10,7 @@
 		$image = imagecreatefrompng($_GET['url']);
 		$width = imagesx($image);
 		$height = imagesy($image);
-		$debug = "Image Name: $filename \n Image Width: $width \n Image Height: $height \n";
+		$debuglog = "Image Name: $filename \n Image Width: $width \n Image Height: $height \n";
 		//This $html variable stores the HTML so that we can write to a file periodically.
 		//If we don't do this then we are likely to run into memory issues.
 		$html = '';
@@ -49,7 +50,7 @@
 				$alpha = ($rgb & 0x7F000000) >> 24;
 				$alpha = 127 - $alpha;
 				$alpha = $alpha / 127.0;
-				$debug .= "($i,$j) - $hexcolour - $alpha - $cellCounter\n";
+				$debuglog .= "($i,$j) - $hexcolour - $alpha - $cellCounter\n";
 				if($j == 0){
 					$prevAlpha = $alpha;
 					$prevColour = $hexcolour;
@@ -100,7 +101,7 @@
 			$html = '';
 		}
 	}
-	//file_put_contents('debug.log',$debug, FILE_APPEND | LOCK_EX);
+	if($DEBUG) file_put_contents('debug.log',$debuglog);
 	//The file now exists no matter what.
 	header('Location: http://' . $_SERVER['HTTP_HOST'] . '/cssimages/' . $filename);
 ?>
