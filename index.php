@@ -61,7 +61,7 @@
 					if($j==($width - 1)){
 						$cellHTML = str_replace('<td width="1','<td width="' . $cellCounter,$cellHTML);
 						$cellHTML = str_replace('bgcolor="#','bgcolor="' . $prevColour,$cellHTML);
-						if($hasAlpha){
+						if($hasAlpha & ($prevAlpha != 1)){
 							$cellHTML = str_replace('style="opacity','style="opacity:' . $prevAlpha . ';filter:alpha(opacity=' . $prevAlpha * 100 . ')',$cellHTML);
 						} else {
 							$cellHTML = str_replace(' style="opacity"','',$cellHTML);
@@ -74,7 +74,7 @@
 				} else {
 					$cellHTML = str_replace('<td width="1','<td width="' . ($cellCounter),$cellHTML);
 					$cellHTML = str_replace('bgcolor="#','bgcolor="' . $prevColour,$cellHTML);
-					if($hasAlpha){
+					if($hasAlpha & ($prevAlpha != 1)){
 						$cellHTML = str_replace('style="opacity','style="opacity:' . $prevAlpha . ';filter:alpha(opacity=' . $prevAlpha * 100 . ')',$cellHTML);
 					} else {
 						$cellHTML = str_replace(' style="opacity"','',$cellHTML);
