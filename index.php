@@ -74,6 +74,8 @@
 				} else {
 					$cellHTML = str_replace('<td width="1','<td width="' . ($cellCounter),$cellHTML);
 					$cellHTML = str_replace('bgcolor="#','bgcolor="' . $prevColour,$cellHTML);
+					//TODO: Add the above line to the if statement in order to further compress the output
+					//It will do this by not specifying the background colour if the pixel is completely transparent
 					if($hasAlpha & ($prevAlpha != 1)){
 						$cellHTML = str_replace('style="opacity','style="opacity:' . $prevAlpha . ';filter:alpha(opacity=' . $prevAlpha * 100 . ')',$cellHTML);
 					} else {
