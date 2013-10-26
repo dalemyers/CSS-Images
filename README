@@ -1,5 +1,4 @@
-CSSImages
---
+#CSSImages
 
 This idea is more a proof of concept than anything else. You feed an image into the script (currently only accepts PNG) and it converts this image pixel for pixel into a HTML table, styled with CSS. 
 
